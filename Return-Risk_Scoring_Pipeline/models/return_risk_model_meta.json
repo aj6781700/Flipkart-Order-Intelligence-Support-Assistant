@@ -1,0 +1,22 @@
+{
+  "t_star_rf": 0.46,
+  "feature_columns": [
+    "price_inr",
+    "discount_pct",
+    "customer_tenure_days",
+    "num_previous_orders",
+    "num_previous_returns",
+    "delivery_distance_km",
+    "delivery_days",
+    "is_weekend_order",
+    "rating_given",
+    "product_category",
+    "payment_method"
+  ],
+  "model_type": "RandomForestClassifier",
+  "best_params": {
+    "clf__max_depth": 6,
+    "clf__n_estimators": 100
+  },
+  "test_roc_auc": 0.6143
+}

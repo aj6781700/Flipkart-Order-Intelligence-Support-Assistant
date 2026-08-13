@@ -1,0 +1,6 @@
+product_category,n,recall,precision
+Apparel,385,0.53,0.3419
+Beauty,116,0.6129,0.5
+Electronics,261,0.3269,0.2787
+Footwear,217,0.5,0.3333
+Home,221,0.6471,0.2245
