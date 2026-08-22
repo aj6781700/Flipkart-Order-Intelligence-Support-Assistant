@@ -1,130 +1,547 @@
-# Flipkart Order Intelligence & Support Assistant
+# Flipkart Order Intelligence Support Assistant
 
-One connected system: a return-risk model (Part 1), a product-image
-categoriser (Part 2), and a LangGraph support agent (Part 3) that loads both
-trained artifacts as real tools on top of a retrieval-augmented policy
-knowledge base.
+An end-to-end AI/ML capstone project combining Machine Learning, Deep Learning, and an AI-powered support agent.
 
-**Status:** Part 1 is fully built, tested, and passing every stated
-acceptance criterion (see `docs/PART1_ANALYSIS.md` for the full write-up).
-Parts 2 and 3 are scaffolded but need their full task briefs (dataset choice,
-exact tool signatures, RAG corpus) before they can be built to the same
-standard — see the note at the bottom of this README.
+This repository contains all three required parts in one public GitHub repository:
 
-## Repo layout
+- Part 1: Return-Risk Scoring Pipeline
+- Part 2: Product Image Categorization via Transfer Learning
+- Part 3: Flipkart Support Agent using LangGraph, RAG, and Tools
 
+---
+
+## Repository Structure
+
+```text
+Flipkart-Order-Intelligence-Support-Assistant/
+│
+├── 1_Return-Risk_Scoring_Pipeline/
+│   ├── docs/
+│   ├── models/
+│   │   └── return_risk_model.pkl
+│   ├── .gitignore
+│   ├── README.md
+│   ├── generate_orders.py
+│   ├── orders_dataset.csv
+│   ├── train_return_risk.py
+│   └── requirements-part1.txt
+│
+├── 2_Product_Image_Categoriser_via_Transfer_Learning/
+│   ├── data/
+│   ├── docs/
+│   ├── models/
+│   │   └── product_classifier.pt
+│   ├── notebooks/
+│   ├── src/
+│   ├── .gitignore
+│   ├── README.md
+│   ├── export_sample_images.py
+│   ├── train_product_classifier.py
+│   └── requirements-part2.txt
+│
+├── 3_Flipkart_Support_Agent/
+│   ├── docs/
+│   ├── policy_kb/
+│   ├── tools/
+│   ├── transcripts/
+│   ├── .gitignore
+│   ├── build_index.py
+│   ├── evaluate_retrieval.py
+│   ├── graph.py
+│   ├── guardrails.py
+│   ├── mock_llm.py
+│   ├── prompts.py
+│   └── requirements-part3.txt
+│
+└── README.md
 ```
-generate_orders.py          # Task 1: exact seeded dataset generator
-orders_dataset.csv          # generated output (6,000 rows, seed=42)
-train_return_risk.py        # Tasks 3-9: preprocessing, baseline, LR, RF, save
-models/
-  return_risk_model.pkl     # final artifact: tuned RF pipeline
-  return_risk_model_meta.json   # t*_rf threshold + feature column order
-docs/
-  PART1_ANALYSIS.md         # all required written analysis, with numbers
-  part1_report.json         # machine-readable metrics dump
-  *_sweep.csv, *_importance.csv, subgroup_by_*.csv   # supporting tables
+
+---
+
+# Part 1: Return-Risk Scoring Pipeline
+
+## Objective
+
+Part 1 predicts the probability that a customer order will be returned.
+
+The pipeline includes:
+
+- Synthetic order data generation
+- Dataset creation
+- Data preprocessing
+- Feature engineering
+- Return-risk model training
+- Model evaluation
+- Saved trained model
+
+## Part 1 Files
+
+```text
+1_Return-Risk_Scoring_Pipeline/
+│
+├── generate_orders.py
+├── orders_dataset.csv
+├── train_return_risk.py
+├── models/
+│   └── return_risk_model.pkl
+└── requirements-part1.txt
 ```
 
-## Part 1 — Return-Risk Scoring Pipeline
+## How to Run Part 1
 
-### Regenerate the dataset
+Open the terminal in the root repository folder and run:
 
 ```bash
-python3 generate_orders.py
+cd 1_Return-Risk_Scoring_Pipeline
 ```
 
-This is deterministic (`np.random.default_rng(42)`) — it will always produce
-the same 6,000-row `orders_dataset.csv` with a ~22.75% return rate and
-~13.05% missingness on `rating_given`.
-
-### Train and evaluate the model
+Install dependencies:
 
 ```bash
-pip install scikit-learn pandas numpy joblib
-python3 train_return_risk.py
+pip install -r requirements-part1.txt
 ```
 
-This runs, in order: preprocessing pipeline build → DummyClassifier baseline
-→ Logistic Regression + threshold sweep → Random Forest `GridSearchCV` →
-impurity + permutation feature importance → subgroup analysis by category and
-payment method → saves `models/return_risk_model.pkl` and
-`models/return_risk_model_meta.json`.
+Generate the order dataset:
 
-### Key results (full detail in `docs/PART1_ANALYSIS.md`)
-
-| Metric | Value |
-|---|---|
-| Baseline accuracy / F1(class 1) | 77.25% / 0.0 |
-| Logistic Regression ROC-AUC / F1 @0.5 | 0.6253 / 0.3921 |
-| LR best-F1 threshold / recall gain | 0.44 / +17.94 pts |
-| RF best CV ROC-AUC | 0.6178 |
-| RF test ROC-AUC | 0.6143 |
-| RF t\*_rf (F1-max threshold) | 0.46 |
-
-The saved `models/return_risk_model.pkl` is the exact fitted
-`sklearn.Pipeline` (preprocessing + tuned `RandomForestClassifier`) that
-Part 3's `check_return_risk` tool loads via `joblib.load(...)` and calls
-`.predict_proba(...)` on directly — nothing is hardcoded.
-
-```python
-import joblib, json
-model = joblib.load("models/return_risk_model.pkl")
-meta = json.load(open("models/return_risk_model_meta.json"))
-
-# example: score a single order (must match meta["feature_columns"] order)
-import pandas as pd
-order = pd.DataFrame([{
-    "price_inr": 1800, "discount_pct": 35, "customer_tenure_days": 40,
-    "num_previous_orders": 1, "num_previous_returns": 0,
-    "delivery_distance_km": 220, "delivery_days": 6, "is_weekend_order": 1,
-    "rating_given": None, "product_category": "Apparel",
-    "payment_method": "COD",
-}])
-proba = model.predict_proba(order)[0, 1]
-risk_bucket = "HIGH" if proba >= meta["t_star_rf"] else "LOW"
-print(proba, risk_bucket)
+```bash
+python generate_orders.py
 ```
 
-## Part 2 — Product Image Categoriser (code complete, not yet executed)
+Run the training and evaluation pipeline:
 
-`train_product_classifier.py`, `export_sample_images.py`, and
-`src/classifier_inference.py` are written to the full spec — but **not yet
-run**, because this was built in a sandbox with no internet access and no
-PyTorch installed. Fashion-MNIST can't be downloaded, and fabricating numbers
-would violate the brief's own "never a fabricated number" rule.
-
-**→ See `docs/PART2_HOWTO.md` for exact run instructions (Google Colab free
-GPU tier recommended, ~10-15 min).** Once you run it and send back the
-output, I'll fill in the real results here and in a `PART2_ANALYSIS.md`, the
-same way Part 1 was documented.
-
-```
-train_product_classifier.py     # full pipeline: load, split, preprocess,
-                                 # transfer-learn (cached features), conditional
-                                 # fine-tune, evaluate, save, report
-export_sample_images.py         # exports 10 real test-split images as .png
-src/classifier_inference.py     # classify_product_image() -- what Part 3's tool calls
-requirements-part2.txt
-docs/PART2_HOWTO.md             # how to run it + what's already spec-verified
+```bash
+python train_return_risk.py
 ```
 
-## Part 3 — not yet built
+## Part 1 Output
 
-Your brief's roadmap diagram names Part 3 (Agent + RAG + Safety, 40 marks),
-but only Parts 1 and 2's tasks and acceptance criteria were spelled out in
-full in what you shared with me. Building it to the same standard needs the
-same level of detail — specifically the exact tool signatures for
-`check_return_risk` and `classify_product_image` (now written, see above),
-the RAG corpus content (or where it comes from), the LangGraph graph
-structure expected, and the `MOCK_LLM` behavior contract.
+The generated dataset is:
 
-Paste me the same full task-by-task text for Part 3 (the way you did for
-Parts 1 and 2) and I'll build, run, and verify it the same way — same rigor,
-same acceptance-criteria checking, saved artifacts, and README updates.
+```text
+orders_dataset.csv
+```
 
-## Git workflow
+The trained model is:
 
-This repo's history includes a feature branch (`part1-return-risk`) created,
-committed to at least twice, and merged into `main` — visible via
+```text
+models/return_risk_model.pkl
+```
+
+---
+
+# Part 2: Product Image Categorization via Transfer Learning
+
+## Objective
+
+Part 2 classifies product images using Transfer Learning.
+
+The pipeline includes:
+
+- Product image data preparation
+- Transfer learning
+- Model training
+- Model evaluation
+- Confusion-matrix output
+- Saved PyTorch model
+
+## Part 2 Files
+
+```text
+2_Product_Image_Categoriser_via_Transfer_Learning/
+│
+├── data/
+├── docs/
+├── models/
+│   └── product_classifier.pt
+├── notebooks/
+├── src/
+├── export_sample_images.py
+├── train_product_classifier.py
+└── requirements-part2.txt
+```
+
+## How to Run Part 2
+
+From the root repository folder:
+
+```bash
+cd 2_Product_Image_Categoriser_via_Transfer_Learning
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements-part2.txt
+```
+
+Run the product image classification training pipeline:
+
+```bash
+python train_product_classifier.py
+```
+
+## Part 2 Output
+
+The trained product classification model is:
+
+```text
+models/product_classifier.pt
+```
+
+The project also includes model evaluation and confusion-matrix output.
+
+---
+
+# Part 3: Flipkart Support Agent
+
+## Objective
+
+Part 3 implements an AI-powered Flipkart support agent using:
+
+- LangGraph
+- Retrieval-Augmented Generation (RAG)
+- Knowledge-base retrieval
+- Vector indexing
+- Tool calling
+- Guardrails
+- Prompt engineering
+- Retrieval evaluation
+- Test conversations
+
+## Part 3 Files
+
+```text
+3_Flipkart_Support_Agent/
+│
+├── docs/
+├── policy_kb/
+├── tools/
+├── transcripts/
+├── build_index.py
+├── evaluate_retrieval.py
+├── graph.py
+├── guardrails.py
+├── mock_llm.py
+├── prompts.py
+└── requirements-part3.txt
+```
+
+## Knowledge Base
+
+The support and policy knowledge-base files are stored in:
+
+```text
+policy_kb/
+```
+
+These files are used by the retrieval system to answer relevant support questions.
+
+## Vector Index
+
+The vector index is created using:
+
+```text
+build_index.py
+```
+
+## Tool Implementations
+
+The support-agent tool implementations are stored in:
+
+```text
+tools/
+```
+
+## LangGraph Agent
+
+The main AI agent workflow is implemented in:
+
+```text
+graph.py
+```
+
+The workflow handles:
+
+```text
+User Query
+    ↓
+Guardrails
+    ↓
+Knowledge-Base Retrieval
+    ↓
+Tool Selection
+    ↓
+Tool Execution
+    ↓
+AI Support Response
+```
+
+## Retrieval Evaluation
+
+Retrieval performance is evaluated using:
+
+```text
+evaluate_retrieval.py
+```
+
+The evaluation produces retrieval performance numbers for the knowledge-base system.
+
+## Test Conversations
+
+The repository contains 8 or more test support conversations inside:
+
+```text
+transcripts/
+```
+
+## How to Run Part 3
+
+From the root repository folder:
+
+```bash
+cd 3_Flipkart_Support_Agent
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements-part3.txt
+```
+
+Build the vector index:
+
+```bash
+python build_index.py
+```
+
+Run retrieval evaluation:
+
+```bash
+python evaluate_retrieval.py
+```
+
+Run the LangGraph support agent:
+
+```bash
+python graph.py
+```
+
+---
+
+# Complete Project Workflow
+
+```text
+PART 1: RETURN-RISK SCORING
+
+Synthetic Order Data
+        ↓
+Data Generation
+        ↓
+Data Preprocessing
+        ↓
+Feature Engineering
+        ↓
+Model Training
+        ↓
+Model Evaluation
+        ↓
+models/return_risk_model.pkl
+```
+
+```text
+PART 2: PRODUCT IMAGE CATEGORIZATION
+
+Product Images
+        ↓
+Data Preparation
+        ↓
+Transfer Learning
+        ↓
+Model Training
+        ↓
+Model Evaluation
+        ↓
+Confusion Matrix
+        ↓
+models/product_classifier.pt
+```
+
+```text
+PART 3: FLIPKART SUPPORT AGENT
+
+User Support Query
+        ↓
+Guardrails
+        ↓
+Knowledge-Base Retrieval
+        ↓
+LangGraph Agent
+        ↓
+Tool Selection
+        ↓
+Tool Execution
+        ↓
+AI Support Response
+```
+
+---
+
+# Complete Installation and Run Instructions
+
+## Step 1: Clone the Repository
+
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+```
+
+## Step 2: Open the Repository
+
+```bash
+cd Flipkart-Order-Intelligence-Support-Assistant
+```
+
+---
+
+## Run Part 1
+
+```bash
+cd 1_Return-Risk_Scoring_Pipeline
+pip install -r requirements-part1.txt
+python generate_orders.py
+python train_return_risk.py
+```
+
+Return to the root folder:
+
+```bash
+cd ..
+```
+
+---
+
+## Run Part 2
+
+```bash
+cd 2_Product_Image_Categoriser_via_Transfer_Learning
+pip install -r requirements-part2.txt
+python train_product_classifier.py
+```
+
+Return to the root folder:
+
+```bash
+cd ..
+```
+
+---
+
+## Run Part 3
+
+```bash
+cd 3_Flipkart_Support_Agent
+pip install -r requirements-part3.txt
+python build_index.py
+python evaluate_retrieval.py
+python graph.py
+```
+
+---
+
+# Technologies Used
+
+```text
+PART 1: MACHINE LEARNING
+
+Python
+Pandas
+NumPy
+Scikit-learn
+
+
+PART 2: DEEP LEARNING
+
+Python
+PyTorch
+Torchvision
+Transfer Learning
+
+
+PART 3: AI AGENT SYSTEM
+
+Python
+LangGraph
+Retrieval-Augmented Generation
+Vector Indexing
+Tool Calling
+Prompt Engineering
+Guardrails
+```
+
+---
+
+# Submission Contents
+
+This single public GitHub repository contains all required project artifacts.
+
+## Part 1
+
+```text
+✓ generate_orders.py
+✓ orders_dataset.csv
+✓ Training code
+✓ Evaluation code
+✓ models/return_risk_model.pkl
+```
+
+## Part 2
+
+```text
+✓ Product image training code
+✓ Product image evaluation code
+✓ Confusion-matrix output
+✓ models/product_classifier.pt
+```
+
+## Part 3
+
+```text
+✓ Knowledge-base files
+✓ Vector-index build code
+✓ Retrieval evaluation code and numbers
+✓ Tool implementations
+✓ LangGraph agent code
+✓ Guardrails
+✓ Prompt definitions
+✓ transcripts/ with 8+ test conversations
+```
+
+---
+
+# Conclusion
+
+This capstone project demonstrates a progression across three major areas of Artificial Intelligence.
+
+```text
+PART 1
+Machine Learning
+Return-Risk Prediction
+        ↓
+PART 2
+Deep Learning
+Product Image Classification
+        ↓
+PART 3
+AI Agent System
+LangGraph + RAG + Tools
+```
+
+All source code, datasets, trained model artifacts, evaluations, knowledge-base files, transcripts, and documentation are included in this single GitHub repository.
+
+---
+
+# Author
+
+Adarsh Kumar Jha
+
+Capstone Project: Flipkart Order Intelligence Support Assistant
 `git log --graph --all`.
