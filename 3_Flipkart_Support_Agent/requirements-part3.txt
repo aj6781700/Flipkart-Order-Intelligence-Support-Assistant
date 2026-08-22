@@ -1,0 +1,10 @@
+langgraph>=0.2
+sentence-transformers>=2.7
+faiss-cpu>=1.8
+numpy
+pandas
+joblib
+torch>=2.0
+torchvision>=0.15
+pillow
+scikit-learn

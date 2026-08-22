@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+policy_kb/faiss_index.bin
+policy_kb/chunk_metadata.pkl
