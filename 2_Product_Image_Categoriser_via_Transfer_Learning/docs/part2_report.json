@@ -1,0 +1,285 @@
+{
+  "dataset": "Fashion-MNIST (zalandoresearch/fashion-mnist)",
+  "split_sizes": {
+    "train": 50000,
+    "validation": 10000,
+    "test": 10000
+  },
+  "backbone": "EfficientNet-B0, ImageNet-pretrained (lukemelas/EfficientNet-PyTorch checkpoint)",
+  "input_size": 224,
+  "preprocessing": "grayscale->3ch, resize 224x224, ImageNet mean/std normalisation",
+  "head_training": {
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "epochs": 20,
+    "batch_size": 256,
+    "val_acc_per_epoch": [
+      0.8813,
+      0.8958,
+      0.9007,
+      0.9047,
+      0.908,
+      0.9121,
+      0.9146,
+      0.9154,
+      0.9146,
+      0.9174,
+      0.9169,
+      0.9188,
+      0.9184,
+      0.9194,
+      0.9194,
+      0.92,
+      0.9216,
+      0.9201,
+      0.9177,
+      0.9199
+    ],
+    "feature_extraction_batch_size": 100
+  },
+  "feature_extraction_val_accuracy": 0.9216,
+  "fine_tuning": {
+    "required": false,
+    "val_acc_before": 0.9216,
+    "val_acc_after": null
+  },
+  "fine_tuning_settings": {
+    "optimizer": "Adam",
+    "learning_rate": 0.0001,
+    "epochs": 3,
+    "batch_size": 64,
+    "unfrozen": [
+      "_blocks.14",
+      "_blocks.15",
+      "_conv_head",
+      "_bn1"
+    ]
+  },
+  "test_accuracy": 0.9138,
+  "confusion_matrix": [
+    [
+      871,
+      1,
+      19,
+      21,
+      2,
+      0,
+      81,
+      0,
+      5,
+      0
+    ],
+    [
+      2,
+      985,
+      1,
+      10,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0
+    ],
+    [
+      18,
+      1,
+      869,
+      7,
+      46,
+      0,
+      58,
+      0,
+      1,
+      0
+    ],
+    [
+      17,
+      5,
+      17,
+      890,
+      25,
+      0,
+      45,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      38,
+      21,
+      881,
+      0,
+      58,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      975,
+      0,
+      17,
+      0,
+      8
+    ],
+    [
+      109,
+      0,
+      50,
+      24,
+      66,
+      0,
+      745,
+      0,
+      6,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      11,
+      0,
+      973,
+      0,
+      16
+    ],
+    [
+      2,
+      1,
+      0,
+      1,
+      4,
+      0,
+      1,
+      0,
+      991,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      37,
+      0,
+      958
+    ]
+  ],
+  "per_class": [
+    {
+      "class": "T-shirt/top",
+      "precision": 0.8539,
+      "recall": 0.871,
+      "f1": 0.8624,
+      "support": 1000
+    },
+    {
+      "class": "Trouser",
+      "precision": 0.9909,
+      "recall": 0.985,
+      "f1": 0.988,
+      "support": 1000
+    },
+    {
+      "class": "Pullover",
+      "precision": 0.8742,
+      "recall": 0.869,
+      "f1": 0.8716,
+      "support": 1000
+    },
+    {
+      "class": "Dress",
+      "precision": 0.9138,
+      "recall": 0.89,
+      "f1": 0.9017,
+      "support": 1000
+    },
+    {
+      "class": "Coat",
+      "precision": 0.8604,
+      "recall": 0.881,
+      "f1": 0.8706,
+      "support": 1000
+    },
+    {
+      "class": "Sandal",
+      "precision": 0.9839,
+      "recall": 0.975,
+      "f1": 0.9794,
+      "support": 1000
+    },
+    {
+      "class": "Shirt",
+      "precision": 0.754,
+      "recall": 0.745,
+      "f1": 0.7495,
+      "support": 1000
+    },
+    {
+      "class": "Sneaker",
+      "precision": 0.9474,
+      "recall": 0.973,
+      "f1": 0.96,
+      "support": 1000
+    },
+    {
+      "class": "Bag",
+      "precision": 0.9851,
+      "recall": 0.991,
+      "f1": 0.988,
+      "support": 1000
+    },
+    {
+      "class": "Ankle boot",
+      "precision": 0.9756,
+      "recall": 0.958,
+      "f1": 0.9667,
+      "support": 1000
+    }
+  ],
+  "top_confused_pairs": [
+    {
+      "true": "Shirt",
+      "predicted": "T-shirt/top",
+      "count": 109
+    },
+    {
+      "true": "T-shirt/top",
+      "predicted": "Shirt",
+      "count": 81
+    },
+    {
+      "true": "Shirt",
+      "predicted": "Coat",
+      "count": 66
+    },
+    {
+      "true": "Pullover",
+      "predicted": "Shirt",
+      "count": 58
+    },
+    {
+      "true": "Coat",
+      "predicted": "Shirt",
+      "count": 58
+    },
+    {
+      "true": "Shirt",
+      "predicted": "Pullover",
+      "count": 50
+    }
+  ]
+}
