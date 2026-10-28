@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+pretrained_cache/
+data/feature_cache/
+data/fashion_mnist_raw/
+train.log
