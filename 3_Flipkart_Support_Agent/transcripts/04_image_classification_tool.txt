@@ -1,0 +1,17 @@
+# Image classification tool (Part 2 model) on a committed PNG
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+--- Turn 1  [thread_id=t04] ---
+USER: What category is the product in this image? data/sample_images/07_sneaker.png
+
+intent      : image_classification   (rule: .png file path in message)
+  routing rule: tool_calling -> classify_product_image
+tool        : classify_product_image -> {"predicted_class": "Sneaker", "confidence": 0.9927, "image_file": "07_sneaker.png"}
+graph path  : guardrail: injection_blocked=False  >  intent: image_classification via rule: .png file path in message  >  tool_calling: classify_product_image(data/sample_images/07_sneaker.png)  >  response: generated (image)
+
+AGENT (structured JSON):
+{
+  "answer": "The image 07_sneaker.png looks like a Sneaker (99% model confidence).",
+  "source": "image_classifier_tool",
+  "confidence": 0.99
+}

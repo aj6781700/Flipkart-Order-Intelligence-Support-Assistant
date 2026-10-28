@@ -1,0 +1,40 @@
+# Policy RAG (1/2): return window
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+--- Turn 1  [thread_id=t01] ---
+USER: How many days do I have to return a shirt I bought?
+
+intent      : policy_question   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "How many days do I have to return a product?"  cosine=0.7338
+  routing rule: rag_retrieval  -> policy_kb
+retrieved chunks (top-3, cosine):
+  0.5989  [D01-00 | Apparel & Footwear Return Window] Apparel and footwear items purchased on Flipkart can be returned within 14 days of delivery.
+  0.5787  [D03-00 | Home & Furniture Return Window] Home and furniture items, including furnishings, kitchenware, and large appliances, can be returned within 7 days of delivery.
+  0.5416  [D01-08 | Apparel & Footwear Return Window] If a shirt, dress, or pair of shoes does not fit, the customer can choose either a refund or an exchange for another size.
+groundedness: top score 0.5989 vs threshold 0.45 -> GROUNDED, answer from KB
+graph path  : guardrail: injection_blocked=False  >  intent: policy_question via few-shot nearest exemplar  >  rag_retrieval: top score 0.5989 vs threshold 0.45  >  response: generated (policy)
+
+assembled system prompt (4S + role) sent to the generator:
+  | [ROLE]      You are "Kira", a senior customer-support specialist at Flipkart with
+  |             five years of experience resolving order, return and refund queries.
+  | [SPECIFIC]  Answer only questions about (a) Flipkart return/refund/delivery policy,
+  |             (b) the return-risk of a given order, (c) what product category an
+  |             uploaded product image shows. Politely decline anything else.
+  | [SHORT]     Reply in at most three sentences, plain language, no preamble.
+  | [SURROUND]  Policy facts come ONLY from the <context> block below; order-risk and
+  |             image facts come ONLY from the tool result. Never invent a number of
+  |             days, an amount, or a policy that is not in the context.
+  |             <context>[D01-00] Apparel and footwear items purchased on Flipkart can be returned within 14 days of delivery.
+  | [D03-00] Home and furniture items, including furnishings, kitchenware, and large appliances, can be returned within 7 days of delivery.
+  | [D01-08] If a shirt, dress, or pair of shoes does not fit, the customer can choose either a refund or an exchange for another size.</context>
+  | [SINGLE]    Do one job per reply: give exactly one answer, and return it as JSON:
+  |             {"answer": str, "source": "policy_kb" | "return_risk_tool" | "image_classifier_tool",
+  |               "confidence": float between 0 and 1}
+  | 
+
+AGENT (structured JSON):
+{
+  "answer": "Apparel and footwear items purchased on Flipkart can be returned within 14 days of delivery. If a shirt, dress, or pair of shoes does not fit, the customer can choose either a refund or an exchange for another size.",
+  "source": "policy_kb",
+  "confidence": 0.6
+}

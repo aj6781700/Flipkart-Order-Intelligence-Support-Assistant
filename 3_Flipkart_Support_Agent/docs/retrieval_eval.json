@@ -1,0 +1,112 @@
+{
+  "queries": [
+    {
+      "query": "How many days do I have to return a shirt I bought?",
+      "unique_docs": [
+        "D01",
+        "D03"
+      ],
+      "relevant": [
+        "D01"
+      ],
+      "hits": [
+        "D01"
+      ],
+      "precision_at_3": 0.5,
+      "recall_at_3": 1.0
+    },
+    {
+      "query": "When will I get my refund if I paid cash on delivery?",
+      "unique_docs": [
+        "D13",
+        "D05"
+      ],
+      "relevant": [
+        "D05"
+      ],
+      "hits": [
+        "D05"
+      ],
+      "precision_at_3": 0.5,
+      "recall_at_3": 1.0
+    },
+    {
+      "query": "Can I still return my laptop after 20 days?",
+      "unique_docs": [
+        "D02",
+        "D03"
+      ],
+      "relevant": [
+        "D02"
+      ],
+      "hits": [
+        "D02"
+      ],
+      "precision_at_3": 0.5,
+      "recall_at_3": 1.0
+    },
+    {
+      "query": "How long does delivery take to a village or rural address?",
+      "unique_docs": [
+        "D08",
+        "D07"
+      ],
+      "relevant": [
+        "D08"
+      ],
+      "hits": [
+        "D08"
+      ],
+      "precision_at_3": 0.5,
+      "recall_at_3": 1.0
+    },
+    {
+      "query": "Will someone come to pick up my return, or do I have to ship it myself?",
+      "unique_docs": [
+        "D01",
+        "D02",
+        "D09"
+      ],
+      "relevant": [
+        "D09",
+        "D10"
+      ],
+      "hits": [
+        "D09"
+      ],
+      "precision_at_3": 0.3333,
+      "recall_at_3": 0.5
+    },
+    {
+      "query": "Can I exchange a pair of shoes for a different size?",
+      "unique_docs": [
+        "D11",
+        "D01"
+      ],
+      "relevant": [
+        "D11"
+      ],
+      "hits": [
+        "D11"
+      ],
+      "precision_at_3": 0.5,
+      "recall_at_3": 1.0
+    },
+    {
+      "query": "What should I do if my order arrived broken?",
+      "unique_docs": [
+        "D12"
+      ],
+      "relevant": [
+        "D12"
+      ],
+      "hits": [
+        "D12"
+      ],
+      "precision_at_3": 1.0,
+      "recall_at_3": 1.0
+    }
+  ],
+  "mean_precision_at_3": 0.5476,
+  "mean_recall_at_3": 0.9286
+}

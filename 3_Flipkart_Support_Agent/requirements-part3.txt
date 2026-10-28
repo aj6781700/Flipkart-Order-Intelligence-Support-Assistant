@@ -1,0 +1,12 @@
+numpy
+pandas
+scikit-learn
+joblib
+torch
+torchvision
+efficientnet_pytorch
+pillow
+faiss-cpu
+sentence-transformers
+all-minilm-l6-v2-model
+langgraph

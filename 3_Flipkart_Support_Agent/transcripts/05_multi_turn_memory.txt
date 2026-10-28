@@ -1,0 +1,56 @@
+# Multi-turn conversation: state persists within a thread
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+Turn 3 gives no order details: they are recalled from the thread's persisted state (order_context).
+
+--- Turn 1  [thread_id=t05] ---
+USER: Check the return risk for order #48213: ₹32000 Electronics order, 35% discount, paid by COD, delivery 400 km away, delivery in 6 days, customer for 60 days with 2 previous orders and 1 previous return, placed on a weekend.
+
+intent      : return_risk   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "Check the return risk for this order."  cosine=0.67
+  routing rule: tool_calling -> check_return_risk
+tool        : check_return_risk -> {"return_probability": 0.5627, "risk_bucket": "Medium", "t_star_rf": 0.5, "cut_points": {"t_star_rf": 0.5, "low_below": 0.5, "high_at_or_above": 0.65}, "order_id": "#48213"}
+graph path  : guardrail: injection_blocked=False  >  intent: return_risk via few-shot nearest exemplar  >  tool_calling: check_return_risk(order #48213) [details from this message]  >  response: generated (risk)
+
+AGENT (structured JSON):
+{
+  "answer": "Order #48213 has a 0.56 predicted return probability, which is Medium risk (Low < 0.5, High >= 0.65).",
+  "source": "return_risk_tool",
+  "confidence": 0.56
+}
+
+--- Turn 2  [thread_id=t05] ---
+USER: How many days do I have to return an electronics item?
+
+intent      : policy_question   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "How many days do I have to return a product?"  cosine=0.7819
+  routing rule: rag_retrieval  -> policy_kb
+retrieved chunks (top-3, cosine):
+  0.6944  [D02-00 | Electronics Return Window] Electronics such as phones, laptops, tablets, and cameras have a 10-day return window from the date of delivery.
+  0.6729  [D03-00 | Home & Furniture Return Window] Home and furniture items, including furnishings, kitchenware, and large appliances, can be returned within 7 days of delivery.
+  0.5693  [D04-01 | Beauty & Personal Care Return Policy] Unopened, sealed products can be returned within 7 days of delivery.
+groundedness: top score 0.6944 vs threshold 0.45 -> GROUNDED, answer from KB
+graph path  : guardrail: injection_blocked=False  >  intent: policy_question via few-shot nearest exemplar  >  rag_retrieval: top score 0.6944 vs threshold 0.45  >  response: generated (policy)
+
+AGENT (structured JSON):
+{
+  "answer": "Electronics such as phones, laptops, tablets, and cameras have a 10-day return window from the date of delivery.",
+  "source": "policy_kb",
+  "confidence": 0.69
+}
+
+--- Turn 3  [thread_id=t05] ---
+USER: Going back to order #48213, what's its risk bucket again?
+
+intent      : return_risk   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "What is the risk bucket for order number 123?"  cosine=0.7631
+  routing rule: tool_calling -> check_return_risk
+tool        : check_return_risk -> {"return_probability": 0.5627, "risk_bucket": "Medium", "t_star_rf": 0.5, "cut_points": {"t_star_rf": 0.5, "low_below": 0.5, "high_at_or_above": 0.65}, "order_id": "#48213"}
+graph path  : guardrail: injection_blocked=False  >  intent: return_risk via few-shot nearest exemplar  >  tool_calling: check_return_risk(order #48213) [details recalled from conversation state]  >  response: generated (risk)
+
+AGENT (structured JSON):
+{
+  "answer": "Order #48213 has a 0.56 predicted return probability, which is Medium risk (Low < 0.5, High >= 0.65).",
+  "source": "return_risk_tool",
+  "confidence": 0.56
+}

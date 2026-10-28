@@ -1,0 +1,51 @@
+# Fresh conversation: same question, new thread -> empty state
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+Turns 1-2 are in thread t06-old (works). Turn 3 asks the identical question in a NEW thread: the agent has no state and must ask for details.
+
+--- Turn 1  [thread_id=t06-old] ---
+USER: Check the return risk for order #48213: ₹32000 Electronics order, 35% discount, paid by COD, delivery 400 km away, delivery in 6 days, customer for 60 days with 2 previous orders and 1 previous return, placed on a weekend.
+
+intent      : return_risk   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "Check the return risk for this order."  cosine=0.67
+  routing rule: tool_calling -> check_return_risk
+tool        : check_return_risk -> {"return_probability": 0.5627, "risk_bucket": "Medium", "t_star_rf": 0.5, "cut_points": {"t_star_rf": 0.5, "low_below": 0.5, "high_at_or_above": 0.65}, "order_id": "#48213"}
+graph path  : guardrail: injection_blocked=False  >  intent: return_risk via few-shot nearest exemplar  >  tool_calling: check_return_risk(order #48213) [details from this message]  >  response: generated (risk)
+
+AGENT (structured JSON):
+{
+  "answer": "Order #48213 has a 0.56 predicted return probability, which is Medium risk (Low < 0.5, High >= 0.65).",
+  "source": "return_risk_tool",
+  "confidence": 0.56
+}
+
+--- Turn 2  [thread_id=t06-old] ---
+USER: Going back to order #48213, what's its risk bucket again?
+
+intent      : return_risk   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "What is the risk bucket for order number 123?"  cosine=0.7631
+  routing rule: tool_calling -> check_return_risk
+tool        : check_return_risk -> {"return_probability": 0.5627, "risk_bucket": "Medium", "t_star_rf": 0.5, "cut_points": {"t_star_rf": 0.5, "low_below": 0.5, "high_at_or_above": 0.65}, "order_id": "#48213"}
+graph path  : guardrail: injection_blocked=False  >  intent: return_risk via few-shot nearest exemplar  >  tool_calling: check_return_risk(order #48213) [details recalled from conversation state]  >  response: generated (risk)
+
+AGENT (structured JSON):
+{
+  "answer": "Order #48213 has a 0.56 predicted return probability, which is Medium risk (Low < 0.5, High >= 0.65).",
+  "source": "return_risk_tool",
+  "confidence": 0.56
+}
+
+--- Turn 3  [thread_id=t06-new] ---
+USER: Going back to order #48213, what's its risk bucket again?
+
+intent      : return_risk   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "What is the risk bucket for order number 123?"  cosine=0.7631
+  routing rule: tool_calling -> check_return_risk
+graph path  : guardrail: injection_blocked=False  >  intent: return_risk via few-shot nearest exemplar  >  tool_calling: check_return_risk -> missing details for order #48213  >  response: asked the customer for missing details
+
+AGENT (structured JSON):
+{
+  "answer": "I don't have any details for order #48213 in this conversation. Please share the price, discount, category, payment method, delivery distance and days, and the customer's tenure and previous orders/returns so I can score it.",
+  "source": "return_risk_tool",
+  "confidence": 0.0
+}
