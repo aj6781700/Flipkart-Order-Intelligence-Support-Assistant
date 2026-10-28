@@ -1,0 +1,22 @@
+# Policy RAG (extra): multi-document answer
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+--- Turn 1  [thread_id=t09] ---
+USER: Will someone come to pick up my return, or do I have to ship it myself?
+
+intent      : policy_question   (few-shot nearest exemplar (weak/unsupported tool match -> default to policy RAG))
+  few-shot exemplar that drove the routing: "How likely is this order to be returned?"  cosine=0.5928
+  routing rule: rag_retrieval  -> policy_kb
+retrieved chunks (top-3, cosine):
+  0.5326  [D01-05 | Apparel & Footwear Return Window] A return request can be raised from the My Orders page by selecting the item and choosing a return reason.
+  0.5209  [D02-02 | Electronics Return Window] Returns are accepted only if the serial number or IMEI of the returned device matches the one that was shipped.
+  0.5139  [D09-06 | Reverse Pickup Eligibility] The courier executive checks that the item matches the return request, and a pickup receipt is shared with the customer.
+groundedness: top score 0.5326 vs threshold 0.45 -> GROUNDED, answer from KB
+graph path  : guardrail: injection_blocked=False  >  intent: policy_question via few-shot nearest exemplar (weak/unsupported tool match -> default to policy RAG)  >  rag_retrieval: top score 0.5326 vs threshold 0.45  >  response: generated (policy)
+
+AGENT (structured JSON):
+{
+  "answer": "A return request can be raised from the My Orders page by selecting the item and choosing a return reason.",
+  "source": "policy_kb",
+  "confidence": 0.53
+}

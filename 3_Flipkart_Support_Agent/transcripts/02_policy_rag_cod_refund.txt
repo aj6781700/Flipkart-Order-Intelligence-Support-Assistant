@@ -1,0 +1,22 @@
+# Policy RAG (2/2): COD refund timeline
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+--- Turn 1  [thread_id=t02] ---
+USER: When will I get my refund if I paid cash on delivery?
+
+intent      : policy_question   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "When will I get my refund after I return an item?"  cosine=0.7484
+  routing rule: rag_retrieval  -> policy_kb
+retrieved chunks (top-3, cosine):
+  0.6835  [D13-04 | Order Cancellation Before Shipping] Cash on Delivery orders that are cancelled before shipping do not require any refund, because no payment has been made.
+  0.6212  [D05-00 | COD Refund Timeline] For Cash on Delivery orders, refunds are issued to the customer's bank account or Flipkart wallet, since no prepaid instrument exists to reverse.
+  0.5584  [D13-03 | Order Cancellation Before Shipping] Prepaid orders that are cancelled before shipping are refunded to the original payment method within 3-5 business days.
+groundedness: top score 0.6835 vs threshold 0.45 -> GROUNDED, answer from KB
+graph path  : guardrail: injection_blocked=False  >  intent: policy_question via few-shot nearest exemplar  >  rag_retrieval: top score 0.6835 vs threshold 0.45  >  response: generated (policy)
+
+AGENT (structured JSON):
+{
+  "answer": "Cash on Delivery orders that are cancelled before shipping do not require any refund, because no payment has been made. Prepaid orders that are cancelled before shipping are refunded to the original payment method within 3-5 business days.",
+  "source": "policy_kb",
+  "confidence": 0.68
+}

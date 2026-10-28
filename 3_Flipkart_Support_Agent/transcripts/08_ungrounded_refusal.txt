@@ -1,0 +1,44 @@
+# Guardrail: ungrounded policy question refused
+# MOCK_LLM=1 (deterministic template generator; no API key, no network)
+
+Groundedness threshold = 0.45 (min cosine of the best chunk). Below it, the agent refuses instead of answering.
+
+--- Turn 1  [thread_id=t08] ---
+USER: Who won the cricket world cup?
+
+intent      : policy_question   (few-shot nearest exemplar (weak/unsupported tool match -> default to policy RAG))
+  few-shot exemplar that drove the routing: "Classify the product photo I uploaded."  cosine=0.1275
+  routing rule: rag_retrieval  -> policy_kb
+retrieved chunks (top-3, cosine):
+  0.1854  [D14-00 | International Orders] Flipkart does not currently support shipping orders outside India, so every order must have a delivery address within the country.
+  0.1474  [D14-05 | International Orders] Gift orders sent to an address in India are supported, and the customer can add a gift message at checkout.
+  0.1451  [D10-06 | Reverse Pickup Unavailable Areas] The reimbursement for self-shipping is credited to the Flipkart wallet within 7 business days of the receipt being verified.
+groundedness: top score 0.1854 vs threshold 0.45 -> NOT GROUNDED, refuse
+graph path  : guardrail: injection_blocked=False  >  intent: policy_question via few-shot nearest exemplar (weak/unsupported tool match -> default to policy RAG)  >  rag_retrieval: top score 0.1854 vs threshold 0.45  >  response: REFUSED - groundedness 0.1854 < threshold 0.45
+
+AGENT (structured JSON):
+{
+  "answer": "I couldn't find this in Flipkart's policy documents, so I won't guess. Please contact Flipkart customer support for this one.",
+  "source": "policy_kb",
+  "confidence": 0.1854
+}
+
+--- Turn 2  [thread_id=t08] ---
+USER: What is the best pizza in Mumbai?
+
+intent      : policy_question   (few-shot nearest exemplar)
+  few-shot exemplar that drove the routing: "Does Flipkart offer exchange for a different size?"  cosine=0.1523
+  routing rule: rag_retrieval  -> policy_kb
+retrieved chunks (top-3, cosine):
+  0.2940  [D07-00 | Delivery SLA -- Metro Areas] Orders shipped to major metro cities such as Delhi, Mumbai, Bengaluru, Chennai, Hyderabad, Kolkata, and Pune are typically delivered within 1-3 business days of dispatch.
+  0.2620  [D14-00 | International Orders] Flipkart does not currently support shipping orders outside India, so every order must have a delivery address within the country.
+  0.2233  [D14-02 | International Orders] Customers living abroad can order for delivery to a family member's address in India by entering that address at checkout.
+groundedness: top score 0.294 vs threshold 0.45 -> NOT GROUNDED, refuse
+graph path  : guardrail: injection_blocked=False  >  intent: policy_question via few-shot nearest exemplar  >  rag_retrieval: top score 0.294 vs threshold 0.45  >  response: REFUSED - groundedness 0.294 < threshold 0.45
+
+AGENT (structured JSON):
+{
+  "answer": "I couldn't find this in Flipkart's policy documents, so I won't guess. Please contact Flipkart customer support for this one.",
+  "source": "policy_kb",
+  "confidence": 0.294
+}
