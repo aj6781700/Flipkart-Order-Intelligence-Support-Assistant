@@ -1,0 +1,79 @@
+DATA VERIFICATION: {
+  "rows": 6000,
+  "columns": 13,
+  "overall_return_rate": 0.2275,
+  "rating_missing_pct": 13.05,
+  "rating_missing_rate_COD": 0.2283,
+  "rating_missing_rate_non_COD": 0.0606,
+  "rating_missing_gap_pts": 16.77,
+  "return_rate_by_category": {
+    "Apparel": 0.2643,
+    "Beauty": 0.2003,
+    "Electronics": 0.1869,
+    "Footwear": 0.2596,
+    "Home": 0.1915
+  },
+  "return_rate_by_payment": {
+    "COD": 0.3075,
+    "Prepaid_Card": 0.1682,
+    "Prepaid_UPI": 0.1692,
+    "Wallet": 0.1785
+  },
+  "rating_missing_rate_by_payment": {
+    "COD": 0.2283,
+    "Prepaid_Card": 0.0631,
+    "Prepaid_UPI": 0.0566,
+    "Wallet": 0.064
+  }
+}
+
+Train rows: 4800 | Test rows: 1200
+
+BASELINE: {'accuracy': 0.7725, 'f1_class1': 0.0, 'recall_class1': 0.0}
+LOGREG @0.5: {'accuracy': 0.5917, 'f1_class1': 0.3921, 'recall_class1': 0.5788, 'precision_class1': 0.2964, 'roc_auc': 0.6253}
+LOGREG best-F1 threshold: {'threshold': 0.44, 'f1': 0.4091, 'recall': 0.7582, 'precision': 0.2801} | recall gain (pts): 17.94 | precision drop (pts): 1.63
+
+RF GRIDSEARCH: {'best_params': {'clf__max_depth': 6, 'clf__n_estimators': 200}, 'best_cv_roc_auc': 0.6192, 'test_roc_auc': 0.6203}
+
+TOP-5 IMPURITY IMPORTANCES:
+                 feature  impurity_importance
+0    payment_method_COD             0.178806
+1             price_inr             0.132267
+2  delivery_distance_km             0.095675
+3  customer_tenure_days             0.090013
+4         delivery_days             0.088449
+
+PERMUTATION IMPORTANCE (raw columns, test ROC-AUC drop):
+                  feature  perm_importance_mean  perm_importance_std
+0         payment_method              0.095729             0.010554
+1              price_inr              0.012399             0.005869
+2   num_previous_returns              0.008707             0.001937
+3       product_category              0.007986             0.005160
+4          delivery_days              0.003031             0.003211
+5       is_weekend_order              0.001001             0.000688
+6   delivery_distance_km              0.000557             0.001933
+7           discount_pct             -0.000556             0.001990
+8           rating_given             -0.001074             0.002066
+9    num_previous_orders             -0.001650             0.001740
+10  customer_tenure_days             -0.005074             0.002348
+
+RF overall @0.5: {'recall': 0.5495, 'precision': 0.324}
+
+SUBGROUP by product_category:
+   product_category    n  recall  precision
+0          Apparel  385  0.5200     0.3171
+1           Beauty  116  0.6129     0.4750
+2      Electronics  261  0.4423     0.3286
+3         Footwear  217  0.5893     0.3626
+4             Home  221  0.6765     0.2347 
+
+SUBGROUP by payment_method:
+   payment_method    n  recall  precision
+0            COD  503  0.9355     0.3273
+1   Prepaid_Card  283  0.0204     0.2000
+2    Prepaid_UPI  294  0.0417     0.3333
+3         Wallet  120  0.0952     0.2222
+
+t*_rf (F1-maximising threshold on the RF's own predict_proba): {'t_star_rf': 0.5, 'recall': 0.5495, 'precision': 0.324, 'f1': 0.4076}
+
+Saved models/return_risk_model.pkl, models/return_risk_model_meta.json, docs/part1_report.json

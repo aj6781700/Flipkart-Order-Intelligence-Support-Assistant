@@ -1,0 +1,205 @@
+{
+  "data_verification": {
+    "rows": 6000,
+    "columns": 13,
+    "overall_return_rate": 0.2275,
+    "rating_missing_pct": 13.05,
+    "rating_missing_rate_COD": 0.2283,
+    "rating_missing_rate_non_COD": 0.0606,
+    "rating_missing_gap_pts": 16.77,
+    "return_rate_by_category": {
+      "Apparel": 0.2643,
+      "Beauty": 0.2003,
+      "Electronics": 0.1869,
+      "Footwear": 0.2596,
+      "Home": 0.1915
+    },
+    "return_rate_by_payment": {
+      "COD": 0.3075,
+      "Prepaid_Card": 0.1682,
+      "Prepaid_UPI": 0.1692,
+      "Wallet": 0.1785
+    },
+    "rating_missing_rate_by_payment": {
+      "COD": 0.2283,
+      "Prepaid_Card": 0.0631,
+      "Prepaid_UPI": 0.0566,
+      "Wallet": 0.064
+    }
+  },
+  "baseline": {
+    "accuracy": 0.7725,
+    "f1_class1": 0.0,
+    "recall_class1": 0.0
+  },
+  "logreg_default": {
+    "accuracy": 0.5917,
+    "f1_class1": 0.3921,
+    "recall_class1": 0.5788,
+    "precision_class1": 0.2964,
+    "roc_auc": 0.6253
+  },
+  "logreg_best_threshold": {
+    "threshold": 0.44,
+    "f1": 0.4091,
+    "recall": 0.7582,
+    "precision": 0.2801
+  },
+  "logreg_recall_gain_pts": 17.94,
+  "logreg_precision_drop_pts": 1.63,
+  "rf_grid": {
+    "best_params": {
+      "clf__max_depth": 6,
+      "clf__n_estimators": 200
+    },
+    "best_cv_roc_auc": 0.6192,
+    "test_roc_auc": 0.6203
+  },
+  "rf_top5_impurity": [
+    {
+      "feature": "payment_method_COD",
+      "impurity_importance": 0.1788
+    },
+    {
+      "feature": "price_inr",
+      "impurity_importance": 0.1323
+    },
+    {
+      "feature": "delivery_distance_km",
+      "impurity_importance": 0.0957
+    },
+    {
+      "feature": "customer_tenure_days",
+      "impurity_importance": 0.09
+    },
+    {
+      "feature": "delivery_days",
+      "impurity_importance": 0.0884
+    }
+  ],
+  "rf_permutation_importance": [
+    {
+      "feature": "payment_method",
+      "perm_importance_mean": 0.0957,
+      "perm_importance_std": 0.0106
+    },
+    {
+      "feature": "price_inr",
+      "perm_importance_mean": 0.0124,
+      "perm_importance_std": 0.0059
+    },
+    {
+      "feature": "num_previous_returns",
+      "perm_importance_mean": 0.0087,
+      "perm_importance_std": 0.0019
+    },
+    {
+      "feature": "product_category",
+      "perm_importance_mean": 0.008,
+      "perm_importance_std": 0.0052
+    },
+    {
+      "feature": "delivery_days",
+      "perm_importance_mean": 0.003,
+      "perm_importance_std": 0.0032
+    },
+    {
+      "feature": "is_weekend_order",
+      "perm_importance_mean": 0.001,
+      "perm_importance_std": 0.0007
+    },
+    {
+      "feature": "delivery_distance_km",
+      "perm_importance_mean": 0.0006,
+      "perm_importance_std": 0.0019
+    },
+    {
+      "feature": "discount_pct",
+      "perm_importance_mean": -0.0006,
+      "perm_importance_std": 0.002
+    },
+    {
+      "feature": "rating_given",
+      "perm_importance_mean": -0.0011,
+      "perm_importance_std": 0.0021
+    },
+    {
+      "feature": "num_previous_orders",
+      "perm_importance_mean": -0.0017,
+      "perm_importance_std": 0.0017
+    },
+    {
+      "feature": "customer_tenure_days",
+      "perm_importance_mean": -0.0051,
+      "perm_importance_std": 0.0023
+    }
+  ],
+  "rf_overall_at_0.5": {
+    "recall": 0.5495,
+    "precision": 0.324
+  },
+  "subgroup_category": [
+    {
+      "product_category": "Apparel",
+      "n": 385,
+      "recall": 0.52,
+      "precision": 0.3171
+    },
+    {
+      "product_category": "Beauty",
+      "n": 116,
+      "recall": 0.6129,
+      "precision": 0.475
+    },
+    {
+      "product_category": "Electronics",
+      "n": 261,
+      "recall": 0.4423,
+      "precision": 0.3286
+    },
+    {
+      "product_category": "Footwear",
+      "n": 217,
+      "recall": 0.5893,
+      "precision": 0.3626
+    },
+    {
+      "product_category": "Home",
+      "n": 221,
+      "recall": 0.6765,
+      "precision": 0.2347
+    }
+  ],
+  "subgroup_payment": [
+    {
+      "payment_method": "COD",
+      "n": 503,
+      "recall": 0.9355,
+      "precision": 0.3273
+    },
+    {
+      "payment_method": "Prepaid_Card",
+      "n": 283,
+      "recall": 0.0204,
+      "precision": 0.2
+    },
+    {
+      "payment_method": "Prepaid_UPI",
+      "n": 294,
+      "recall": 0.0417,
+      "precision": 0.3333
+    },
+    {
+      "payment_method": "Wallet",
+      "n": 120,
+      "recall": 0.0952,
+      "precision": 0.2222
+    }
+  ],
+  "rf_t_star": {
+    "t_star_rf": 0.5,
+    "recall": 0.5495,
+    "precision": 0.324,
+    "f1": 0.4076
+  }
+}
