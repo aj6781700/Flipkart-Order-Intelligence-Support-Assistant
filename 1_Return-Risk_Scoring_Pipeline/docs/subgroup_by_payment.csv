@@ -1,0 +1,5 @@
+payment_method,n,recall,precision
+COD,503,0.9355,0.3273
+Prepaid_Card,283,0.0204,0.2
+Prepaid_UPI,294,0.0417,0.3333
+Wallet,120,0.0952,0.2222
